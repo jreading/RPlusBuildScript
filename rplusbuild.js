@@ -17,21 +17,30 @@ var Js = {
 };
 
 
-// Less/CSS conversion
+/* Less/CSS conversion */
 var processLess = function() {
 	log("\n** Processing Css **", blue);
 	for (var file in Css) {
 		exec("lessc --yui-compress _src/css/" + file + " > build/css/" + Css[file], showError);
 		log("processed " + file, green);
 	}
+	processCss();
+};
+
+var processCss = function() {
+	//TODO: Bundling for latency
 };
 
 // JS minification AMD bundling
 var processJs = function() {
 	log("\n** Processing Js **", blue);
 
+
+	//AMD Bundling for latency
 	var config = {
 		baseUrl: "_src/js/modules/",
+		wrap: true,
+		optimize: "none",
 		onBuildWrite: function (id, path, contents) {
 			var defineRegExp = /define\s*\(\s*["'][^'"]+["']\s*,\s*\[[^\]]*\]\s*,function\s*?\(.*?\)\s*?\{/;
 			//Remove AMD ceremony for use without require.js or almond.js
@@ -42,13 +51,15 @@ var processJs = function() {
 		}
 	};
 
-	//process AMD for
 	for (var file in Js) {
 		config.name = file;
 		config.out = "build/js/modules/" + Js[file];
 		requirejs.optimize(config);
 		log("processed " + file, green);
 	}
+
+	// TODO: Minification for unbundled AMD
+
 };
 
 // Global functions and objects
