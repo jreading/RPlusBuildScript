@@ -95,8 +95,8 @@ var compileLess = function(cssFile) {
 
 	try {
 		var stats = fs.statSync(src + cssFile);
-
-		if (!stats.isFile()) { //readdirSync gets subdirectories
+		//readdirSync gets subdirectories
+		if (!stats.isFile()) {
 			totalCssFiles--;
 		} else {
 			// TODO: add compression options as args
@@ -174,20 +174,23 @@ var processJs = function() {
 		jsFile = js + mainJs[i];
 		try {
 			var stats = fs.statSync(src + jsFile);
-			if (!stats.isFile()) { //readdirSync gets subdirectories
+			//readdirSync gets subdirectories
+			if (!stats.isFile()) {
 				totalJsFiles--;
 			} else {
 				// TODO: add compression options as args
 				var file = fs.readFileSync(src + jsFile, "utf-8");
-				var ast = jsp.parse(file); // parse code and get the initial AST
-				ast = pro.ast_mangle(ast); // get a new AST with mangled names
-				ast = pro.ast_squeeze(ast); // get an AST with compression optimizations
-				var out = pro.gen_code(ast); // compressed code here
-				
-				fs.writeFileSync(build + jsFile, out, "utf-8"); // write file here
-				
+				// parse code and get the initial AST
+				var ast = jsp.parse(file);
+				// get a new AST with mangled names
+				ast = pro.ast_mangle(ast);
+				// get an AST with compression optimizations
+				ast = pro.ast_squeeze(ast);
+				// compressed code here
+				var out = pro.gen_code(ast);
+				// write file here
+				fs.writeFileSync(build + jsFile, out, "utf-8");
 				log(jsFile + " - done", green);
-
 				files++;
 			}
 		} catch(err){
@@ -195,7 +198,7 @@ var processJs = function() {
 		}
 	}
 
-		finish();
+	finish();
 };
 
 var finish = function() {
