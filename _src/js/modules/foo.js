@@ -1,8 +1,6 @@
 define([],function() {
 
-	var foo = foo.extend({
-		
-	});
+	var foo = function(){};
 
 	return foo;
 });
