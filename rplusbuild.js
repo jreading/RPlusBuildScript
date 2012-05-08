@@ -6,8 +6,9 @@
 // Dependencies
 var fs = require('fs');
 var exec = require("child_process").exec;
-var rjs = require("requirejs");
 var rplusbuild = require('commander');
+var rjs = require("requirejs");
+var less = require('less');
 var jsp = require("uglify-js").parser;
 var pro = require("uglify-js").uglify;
 var path = require('path');
@@ -39,7 +40,6 @@ var reset = '\u001b[0m';
 // Get files for processing
 var Css, Js;
 var files = 0;
-
 
 var init = function() {
 	log("********************************\n"+
@@ -83,17 +83,32 @@ var processLess = function() {
 		cssFile = css + mainCss[i];
 		compileLess(cssFile);
 	}
+
+	processJs();
 };
 
 // Less/CSS conversion
 var compileLess = function(cssFile) {
+	var parser = new(less.Parser)();
 	try {
-		exec("lessc --yui-compress " + src + cssFile + " > " + build + cssFile.replace(".less",".min.css"), function(error, stdout, stderr) {
+		var stats = fs.statSync(src + cssFile);
+		if (!stats.isFile()) { //readdirSync gets subdirectories
+			totalCssFiles--;
+		} else {
+			// TODO: add compression options as args
+			var file = fs.readFileSync(src + cssFile, "utf-8");
+			
+			parser.parse(file, function (err, tree) {
+				if (err) {
+					log(err, red);
+				} else {
+					fs.writeFileSync(build + cssFile.replace(".less",".min.css"), tree.toCSS({ compress: true }), "utf-8");
+				}
+			});
 			log(cssFile + " - done", green);
 			files++;
-			if (files == totalCssFiles) processCss(); //simulate async exec calls.
-		});
-	} catch (err) {
+		}
+	} catch(err){
 		log(err,red);
 	}
 };
@@ -103,7 +118,7 @@ var processCss = function() {
 	//TODO: Bundling for latency
 	log("\n** Branching Css **");
 	//Bundling and moving around devices
-	log("forking for devices here", yellow)
+	log("forking for devices here", yellow);
 	processJs();
 
 };
@@ -117,7 +132,7 @@ var processJs = function() {
 	var config = {
 		baseUrl: src + js + modules,
 		wrap: true,
-		optimize: "none",
+		optimize: "uglify",
 		onBuildWrite: function (id, path, contents) {
 			var defineRegExp = /define.*?\{/;
 			//Remove AMD ceremony for use without require.js or almond.js
