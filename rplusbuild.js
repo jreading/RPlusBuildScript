@@ -52,10 +52,10 @@ var init = function() {
 		mainJs = fs.readdirSync(src + js);
 		totalCssFiles = moduleCss.length + mainCss.length;
 		totalJsFiles = moduleJs.length + mainJs.length;
+		processLess();
 	} catch (e) {
 		log(e,red);
 	}
-	processLess();
 };
 
 // Handle Less
