@@ -38,7 +38,7 @@ var blue  = '\u001b[34m';
 var reset = '\u001b[0m';
 
 // Get files for processing
-var Css, Js;
+var moduleCss, moduleJs, mainCss, mainJs, totalCssFiles, totalJsFiles;
 var files = 0;
 
 var init = function() {
@@ -61,16 +61,16 @@ var init = function() {
 // Handle Less
 var processLess = function() {
 	log("\n** Processing Less **");
+
 	var length, i, cssFile;
 
 	// mkdir if not exist for lessc
 	if (!path.existsSync(build + css + modules)) {
-		// TODO: Make this proper async
+		// TODO: Make this proper Sync
 		exec("mkdir -p " + build + css + modules);
 		processLess();
 		return;
 	}
-
 
 	// Process Module Css
 	length = moduleCss.length;
@@ -92,8 +92,10 @@ var processLess = function() {
 // Less/CSS conversion
 var compileLess = function(cssFile) {
 	var parser = new(less.Parser)();
+
 	try {
 		var stats = fs.statSync(src + cssFile);
+
 		if (!stats.isFile()) { //readdirSync gets subdirectories
 			totalCssFiles--;
 		} else {
@@ -107,9 +109,12 @@ var compileLess = function(cssFile) {
 					fs.writeFileSync(build + cssFile.replace(".less",".min.css"), tree.toCSS({ compress: true }), "utf-8");
 				}
 			});
+
 			log(cssFile + " - done", green);
+
 			files++;
 		}
+
 	} catch(err){
 		log(err,red);
 	}
@@ -119,8 +124,10 @@ var compileLess = function(cssFile) {
 var processCss = function() {
 	//TODO: Bundling for latency
 	log("\n** Branching Css **");
+
 	//Bundling and moving around devices
 	log("forking for devices here", yellow);
+
 	processJs();
 
 };
@@ -128,6 +135,7 @@ var processCss = function() {
 // JS minification AMD bundling
 var processJs = function() {
 	log("\n** Processing Js **");
+
 	var length, i, jsFile;
 
 	// R.js config
@@ -146,6 +154,7 @@ var processJs = function() {
 	};
 
 	length = moduleJs.length;
+
 	for (i = 0; i < length; i++) {
 		jsFile = js + modules + moduleJs[i];
 		config.name = moduleJs[i].replace(".js","");
@@ -159,8 +168,8 @@ var processJs = function() {
 		}
 	}
 
-	// TODO: run uglify on js without R.js optimizations
 	length = mainJs.length;
+
 	for (i = 0; i < length; i++) {
 		jsFile = js + mainJs[i];
 		try {
@@ -174,8 +183,9 @@ var processJs = function() {
 				ast = pro.ast_mangle(ast); // get a new AST with mangled names
 				ast = pro.ast_squeeze(ast); // get an AST with compression optimizations
 				var out = pro.gen_code(ast); // compressed code here
+				
 				fs.writeFileSync(build + jsFile, out, "utf-8"); // write file here
-
+				
 				log(jsFile + " - done", green);
 
 				files++;
