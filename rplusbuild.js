@@ -66,9 +66,9 @@ var processLess = function() {
 
 	// mkdir if not exist for lessc
 	if (!path.existsSync(build + css + modules)) {
-		// TODO: Make this proper Sync
-		exec("mkdir -p " + build + css + modules);
-		processLess();
+		exec("mkdir -p " + build + css + modules, function(){
+			processLess();
+		});
 		return;
 	}
 
@@ -86,7 +86,7 @@ var processLess = function() {
 		compileLess(cssFile);
 	}
 
-	processJs();
+	processCss();
 };
 
 // Less/CSS conversion
