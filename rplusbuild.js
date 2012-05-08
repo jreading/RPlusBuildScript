@@ -65,10 +65,12 @@ var processLess = function() {
 
 	// mkdir if not exist for lessc
 	if (!path.existsSync(build + css + modules)) {
+		// TODO: Make this proper async
 		exec("mkdir -p " + build + css + modules);
 		processLess();
 		return;
 	}
+
 
 	// Process Module Css
 	length = moduleCss.length;
