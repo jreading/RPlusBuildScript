@@ -3,18 +3,31 @@
 * @author: John Reading
 */
 
-/* Config */
-/* TODO: pass in arguments with defaults */
-var src = "_src/";
-var build = "build/";
-var js = "js/";
-var css = "css/";
-var modules = "modules/";
-
 // Dependencies
 var fs = require('fs');
-var rjs = require("./r.js");
 var exec = require("child_process").exec;
+var rjs = require("requirejs");
+var rplusbuild = require('commander');
+var jsp = require("uglify-js").parser;
+var pro = require("uglify-js").uglify;
+var path = require('path');
+
+/* Commander Config */
+rplusbuild
+  .version('0.0.1')
+  .option('-s, --src <dir>', 'source directory', String, "_src/")
+  .option('-b, --build <dir>', 'build directory', String, "build/")
+  .option('-js, --js <dir>', 'javascript directory', String, "js/")
+  .option('-css, --css <dir>', 'css directory', String, "css/")
+  .option('-m, --modules <dir>', 'modules directory', String, "modules/")
+  .parse(process.argv);
+
+/* Pass in arguments with defaults */
+var src = rplusbuild.src;
+var build = rplusbuild.build;
+var js = rplusbuild.js;
+var css = rplusbuild.css;
+var modules = rplusbuild.modules;
 
 // Console colors
 var red = '\u001b[31m';
@@ -24,34 +37,73 @@ var blue  = '\u001b[34m';
 var reset = '\u001b[0m';
 
 // Get files for processing
-var Css = fs.readdirSync(src + css + modules);
-var Js = fs.readdirSync(src + js + modules);
+var Css, Js;
 var files = 0;
 
-// Less/CSS conversion
+
+var init = function() {
+	log("********************************\n"+
+	"**** rplusbuild.js - v0.0.1 ****\n"+
+	"******************************** ", yellow);
+	try {
+		moduleCss = fs.readdirSync(src + css + modules);
+		moduleJs = fs.readdirSync(src + js + modules);
+		mainCss = fs.readdirSync(src + css);
+		mainJs = fs.readdirSync(src + js);
+		totalCssFiles = moduleCss.length + mainCss.length;
+		totalJsFiles = moduleJs.length + mainJs.length;
+	} catch (e) {
+		log(e,red);
+	}
+	processLess();
+};
+
+// Handle Less
 var processLess = function() {
 	log("\n** Processing Less **");
-	var length = Css.length;
-	for (var i = 0; i < length; i++) {
-		var cssFile = css + modules + Css[i];
-		try {
-			exec("lessc --yui-compress " + src + cssFile + " > " + build + cssFile.replace(".less",".min.css"), function(error, stdout, stderr) {
-				log("Processed " + cssFile, green);
-				files++;
-				if (i == length) processCss(); //simulate async exec calls.
-			});
-		} catch (err) {
-			log(err,red);
-		}
+	var length, i, cssFile;
+
+	// mkdir if not exist for lessc
+	if (!path.existsSync(build + css + modules)) {
+		exec("mkdir -p " + build + css + modules);
+		processLess();
+		return;
+	}
+
+	// Process Module Css
+	length = moduleCss.length;
+	for (i = 0; i < length; i++) {
+		cssFile = css + modules + moduleCss[i];
+		compileLess(cssFile);
+	}
+
+	// Process Main Css
+	length = mainCss.length;
+	for (i = 0; i < length; i++) {
+		cssFile = css + mainCss[i];
+		compileLess(cssFile);
+	}
+};
+
+// Less/CSS conversion
+var compileLess = function(cssFile) {
+	try {
+		exec("lessc --yui-compress " + src + cssFile + " > " + build + cssFile.replace(".less",".min.css"), function(error, stdout, stderr) {
+			log(cssFile + " - done", green);
+			files++;
+			if (files == totalCssFiles) processCss(); //simulate async exec calls.
+		});
+	} catch (err) {
+		log(err,red);
 	}
 };
 
 // Bundle and mv css files
 var processCss = function() {
 	//TODO: Bundling for latency
-	log("\n** Processing Css **");
-	//Bundling and moving around
-
+	log("\n** Branching Css **");
+	//Bundling and moving around devices
+	log("forking for devices here", yellow)
 	processJs();
 
 };
@@ -59,9 +111,9 @@ var processCss = function() {
 // JS minification AMD bundling
 var processJs = function() {
 	log("\n** Processing Js **");
-	var length = Js.length;
+	var length, i, jsFile;
 
-	//AMD Bundling for latency
+	// R.js config
 	var config = {
 		baseUrl: src + js + modules,
 		wrap: true,
@@ -76,29 +128,57 @@ var processJs = function() {
 		}
 	};
 
-
-	for (var i = 0; i < length; i++) {
-		var jsFile = js + modules + Js[i];
-		config.name = Js[i].replace(".js","");
+	length = moduleJs.length;
+	for (i = 0; i < length; i++) {
+		jsFile = js + modules + moduleJs[i];
+		config.name = moduleJs[i].replace(".js","");
 		config.out = build + jsFile.replace(".js",".min.js");
 		try {
 			rjs.optimize(config);
-			log("Processed " + jsFile, green);
+			log(jsFile + " - done", green);
 			files++;
 		} catch(err){
 			log(err,red);
 		}
 	}
+
+	// TODO: run uglify on js without R.js optimizations
+	length = mainJs.length;
+	for (i = 0; i < length; i++) {
+		jsFile = js + mainJs[i];
+		try {
+			var stats = fs.statSync(src + jsFile);
+			if (!stats.isFile()) { //readdirSync gets subdirectories
+				totalJsFiles--;
+			} else {
+				// TODO: add compression options as args
+				var file = fs.readFileSync(src + jsFile, "utf-8");
+				var ast = jsp.parse(file); // parse code and get the initial AST
+				ast = pro.ast_mangle(ast); // get a new AST with mangled names
+				ast = pro.ast_squeeze(ast); // get an AST with compression optimizations
+				var out = pro.gen_code(ast); // compressed code here
+				fs.writeFileSync(build + jsFile, out, "utf-8"); // write file here
+
+				log(jsFile + " - done", green);
+
+				files++;
+			}
+		} catch(err){
+			log(err,red);
+		}
+	}
+
+		finish();
+};
+
+var finish = function() {
 	log("\n("+files+") files affected.", yellow);
 };
 
 //log with colors
 var log = function(str, color) {
-	if (!color) color = blue
+	if (!color) color = blue;
 	console.log(color + str + reset);
 };
-log("********************************\n"+
-	"**** rplusbuild.js - v0.0.1 ****\n"+
-	"******************************** ", yellow);
-processLess();
 
+init();
