@@ -138,16 +138,19 @@ var processJs = function() {
 	var config = {
 		baseUrl: src + js + modules,
 		wrap: true,
-		optimize: "uglify",
+		optimize: "none",
+		uglify: {
+			beautify: true
+		},
 		onBuildWrite: function (id, path, contents) {
 			var defineRegExp = /define.*?\{/;
 			//Remove AMD ceremony for use without require.js or almond.js
 			contents = contents.replace(defineRegExp, '')
 			//Remove the trailing }) for the define call and any semicolon
-			.replace(/\}\)(;)?\s*$/, '');
+			.replace(/\}\)(;)?\s*$/, '')
 			//remove last return statment
-			output = contents.replace(/return.*[^return]$/,'');
-			return output;
+			.replace(/return.*[^return]*$/,'');
+			return contents;
 		}
 	};
 
@@ -165,6 +168,7 @@ var processJs = function() {
 		}
 	}
 
+	//TODO: minify AMDs and perserve format
 	length = mainJs.length;
 	for (i = 0; i < length; i++) {
 		jsFile = js + mainJs[i];

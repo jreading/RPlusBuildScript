@@ -7,4 +7,5 @@ define([],function() {
 	};
 
 	return foo;
+
 });
