@@ -1,5 +1,6 @@
 /*
-* Less & AMD preprocessor for nodejs v 0.0.1
+* Less.js & AMD preprocessor for ResponsivePlus sites v0.0.1
+* nodejs v0.6.17
 * @author: John Reading
 */
 
@@ -15,13 +16,34 @@ var path = require('path');
 
 /* Commander Config */
 rplusbuild
-  .version('0.0.1')
-  .option('-s, --src <dir>', 'source directory', String, "_src/")
-  .option('-b, --build <dir>', 'build directory', String, "build/")
-  .option('-js, --js <dir>', 'javascript directory', String, "js/")
-  .option('-css, --css <dir>', 'css directory', String, "css/")
-  .option('-m, --modules <dir>', 'modules directory', String, "modules/")
-  .parse(process.argv);
+	.version('0.0.1')
+	.option('-s,  --src <dir>', 'source dir; default: "_src/"', String, '_src/')
+	.option('-b,  --build <dir>', 'build dir; default: "build/"', String, 'build/')
+	.option('-js, --js <dir>', 'javascript dir in src dir; default: "js/"', String, 'js/')
+	.option('-css, --css <dir>', 'css dir in src dir; default: "css/"', String, 'css/')
+	.option('-m,  --modules <dir>', 'modules dir in css|js dir; default: "modules/"', String, 'modules/')
+	.option('-w, --watch', 'rebuild on file(s) save', Boolean, false)
+	.on('--help', function(){
+		console.log('  Example Dir Structure:\n');
+		console.log('    root');
+		console.log('    | - _src');
+		console.log('         | - js');
+		console.log('              core.js');
+		console.log('              | - modules');
+		console.log('                   my-module.js');
+		console.log('                   my-module.touch.js');
+		console.log('         | - css');
+		console.log('              base.css');
+		console.log('              phone.css');
+		console.log('              tablet.css');
+		console.log('              desktop.css');
+		console.log('              | - modules');
+		console.log('                   my-module.css');
+		console.log('                   my-module.touch.css');
+		console.log('    | - build');
+		console.log('');
+	})
+	.parse(process.argv);
 
 /* Pass in arguments with defaults */
 var src = rplusbuild.src;
@@ -86,12 +108,14 @@ var processLess = function() {
 		compileLess(cssFile);
 	}
 
-	processCss();
+	processJs();
 };
 
 // Less/CSS conversion
 var compileLess = function(cssFile) {
-	var parser = new(less.Parser)();
+	var parser = new(less.Parser)({
+		paths: ['.', './_src/']
+	});
 
 	try {
 		var stats = fs.statSync(src + cssFile);
@@ -118,18 +142,6 @@ var compileLess = function(cssFile) {
 	} catch(err){
 		log(err,red);
 	}
-};
-
-// Bundle and mv css files
-var processCss = function() {
-	//TODO: Bundling for latency
-	log("\n** Branching Css **");
-
-	//Bundling and moving around devices
-	log("forking for devices here", yellow);
-
-	processJs();
-
 };
 
 // JS minification AMD bundling
@@ -203,6 +215,15 @@ var processJs = function() {
 
 var finish = function() {
 	log("\n("+files+") files affected.", yellow);
+	if (rplusbuild.watch) {
+		log("\nWatching " + src + " directory for changes. Crtl+C to quit.\n", yellow)
+		var arrFiles = moduleCss;
+		fs.watch(src + css + modules + arrFiles[0], function (event, filename) {
+			files = 0;
+			processLess();
+		});
+		
+	}
 };
 
 //log with colors
