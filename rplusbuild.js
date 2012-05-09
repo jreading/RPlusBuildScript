@@ -133,6 +133,7 @@ var processJs = function() {
 	log("\n** Processing Js **");
 
 	var length, i, jsFile;
+	var arrJs = [];
 
 	// R.js config
 	var config = {
@@ -143,9 +144,8 @@ var processJs = function() {
 			//beautify: true
 		},
 		onBuildWrite: function (id, path, contents) {
-			var defineRegExp = /define.*?\{/;
 			//Remove AMD ceremony for use without require.js or almond.js
-			contents = contents.replace(defineRegExp, '')
+			contents = contents.replace(/define.*?\{/, '')
 			//Remove the trailing }) for the define call and any semicolon
 			.replace(/\}\)(;)?\s*$/, '')
 			//remove last return statment
@@ -154,6 +154,7 @@ var processJs = function() {
 		}
 	};
 
+	// Create thin version of modules (no AMD loading or require/almond need)
 	length = moduleJs.length;
 	for (i = 0; i < length; i++) {
 		jsFile = js + modules + moduleJs[i];
@@ -168,10 +169,17 @@ var processJs = function() {
 		}
 	}
 
-	//TODO: minify AMDs and perserve format
-	length = mainJs.length;
+	// Create array of all js files relative to src
+	length = moduleJs.length;
 	for (i = 0; i < length; i++) {
-		jsFile = js + mainJs[i];
+		arrJs.push(modules + moduleJs[i]);
+	}
+	arrJs = mainJs.concat(arrJs);
+
+	// Uglify all js for standard amd implement
+	length = arrJs.length;
+	for (i = 0; i < length; i++) {
+		jsFile = js + arrJs[i];
 		try {
 			var stats = fs.statSync(src + jsFile);
 			//readdirSync gets subdirectories
@@ -189,7 +197,7 @@ var processJs = function() {
 				// compressed code here
 				var out = pro.gen_code(ast);
 				// write file here
-				fs.writeFileSync(build + jsFile, out, "utf-8");
+				fs.writeFileSync(build + jsFile.replace(".js",".min.js"), out, "utf-8");
 				log(jsFile + " - done", green);
 				files++;
 			}
@@ -197,6 +205,7 @@ var processJs = function() {
 			log(err,red);
 		}
 	}
+	/// TODO: create  core.thin.js file
 
 	finish();
 };
@@ -211,7 +220,6 @@ var finish = function() {
 		// Add Module Css
 		path = src + css + modules;
 		addWatchedFile(path,moduleCss);
-
 
 		// Add Main Css
 		path = src + css;
