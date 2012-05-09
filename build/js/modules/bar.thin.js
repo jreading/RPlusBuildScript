@@ -1,0 +1,1 @@
+(function(){var a=function(){function a(){var a="foo"}},b=function(){function b(){var a="foo";return a}function c(){var a="bar";return a}console.log(a)}})()

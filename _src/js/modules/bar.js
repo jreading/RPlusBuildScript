@@ -8,6 +8,7 @@ define(['foo'],function(foo) {
 			return foo;
 		}
 
+
 		function anotherFunc() {
 			var bar = "bar";
 			return bar;

@@ -138,9 +138,9 @@ var processJs = function() {
 	var config = {
 		baseUrl: src + js + modules,
 		wrap: true,
-		optimize: "none",
+		optimize: "uglify",
 		uglify: {
-			beautify: true
+			//beautify: true
 		},
 		onBuildWrite: function (id, path, contents) {
 			var defineRegExp = /define.*?\{/;
@@ -158,7 +158,7 @@ var processJs = function() {
 	for (i = 0; i < length; i++) {
 		jsFile = js + modules + moduleJs[i];
 		config.name = moduleJs[i].replace(".js","");
-		config.out = build + jsFile.replace(".js",".min.js");
+		config.out = build + jsFile.replace(".js",".thin.js");
 		try {
 			rjs.optimize(config);
 			log(jsFile + " - done", green);
