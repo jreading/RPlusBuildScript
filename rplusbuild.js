@@ -40,6 +40,7 @@ var red = '\u001b[31m';
 var green = '\u001b[32m';
 var yellow  = '\u001b[33m';
 var blue  = '\u001b[34m';
+var magenta  = '\u001b[35m';
 var reset = '\u001b[0m';
 
 // Get files for processing
@@ -92,6 +93,9 @@ var processLess = function() {
 		compileLess(cssFile);
 	}
 
+	// TODO: Create Full.css for responsive fallback
+	log("TODO: Create Full.css for responsive fallback", magenta);
+
 	processJs();
 };
 
@@ -118,7 +122,7 @@ var compileLess = function(cssFile) {
 				}
 			});
 
-			log(cssFile + " - done", green);
+			log(cssFile.replace(".less",".min.css") + " - done", green);
 
 			files++;
 		}
@@ -162,7 +166,7 @@ var processJs = function() {
 		config.out = build + jsFile.replace(".js",".thin.js");
 		try {
 			rjs.optimize(config);
-			log(jsFile + " - done", green);
+			log(jsFile.replace(".js",".thin.js") + " - done", green);
 			files++;
 		} catch(err){
 			log(err,red);
@@ -198,15 +202,15 @@ var processJs = function() {
 				var out = pro.gen_code(ast);
 				// write file here
 				fs.writeFileSync(build + jsFile.replace(".js",".min.js"), out, "utf-8");
-				log(jsFile + " - done", green);
+				log(jsFile.replace(".js",".min.js") + " - done", green);
 				files++;
 			}
 		} catch(err){
 			log(err,red);
 		}
 	}
-	/// TODO: create  core.thin.js file
-
+	/// TODO: Create core.thin.js file
+	log("TODO: Create core.thin.js file", magenta);
 	finish();
 };
 
