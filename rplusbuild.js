@@ -24,24 +24,7 @@ rplusbuild
 	.option('-m,  --modules <dir>', 'modules dir in css|js dir; default: "modules/"', String, 'modules/')
 	.option('-w, --watch', 'rebuild on file(s) save', Boolean, false)
 	.on('--help', function(){
-		console.log('  Example Dir Structure:\n');
-		console.log('    root');
-		console.log('    | - _src');
-		console.log('         | - js');
-		console.log('              core.js');
-		console.log('              | - modules');
-		console.log('                   my-module.js');
-		console.log('                   my-module.touch.js');
-		console.log('         | - css');
-		console.log('              base.css');
-		console.log('              phone.css');
-		console.log('              tablet.css');
-		console.log('              desktop.css');
-		console.log('              | - modules');
-		console.log('                   my-module.css');
-		console.log('                   my-module.touch.css');
-		console.log('    | - build');
-		console.log('');
+		//nothing
 	})
 	.parse(process.argv);
 
@@ -62,6 +45,7 @@ var reset = '\u001b[0m';
 // Get files for processing
 var moduleCss, moduleJs, mainCss, mainJs, totalCssFiles, totalJsFiles;
 var files = 0;
+var arrFiles = [];
 
 var init = function() {
 	log("********************************\n"+
@@ -158,15 +142,16 @@ var processJs = function() {
 		onBuildWrite: function (id, path, contents) {
 			var defineRegExp = /define.*?\{/;
 			//Remove AMD ceremony for use without require.js or almond.js
-			contents =  contents.replace(defineRegExp, '')
+			contents = contents.replace(defineRegExp, '')
 			//Remove the trailing }) for the define call and any semicolon
 			.replace(/\}\)(;)?\s*$/, '');
-			return contents;
+			//remove last return statment
+			output = contents.replace(/return.*[^return]$/,'');
+			return output;
 		}
 	};
 
 	length = moduleJs.length;
-
 	for (i = 0; i < length; i++) {
 		jsFile = js + modules + moduleJs[i];
 		config.name = moduleJs[i].replace(".js","");
@@ -181,7 +166,6 @@ var processJs = function() {
 	}
 
 	length = mainJs.length;
-
 	for (i = 0; i < length; i++) {
 		jsFile = js + mainJs[i];
 		try {
@@ -216,13 +200,46 @@ var processJs = function() {
 var finish = function() {
 	log("\n("+files+") files affected.", yellow);
 	if (rplusbuild.watch) {
-		log("\nWatching " + src + " directory for changes. Crtl+C to quit.\n", yellow)
-		var arrFiles = moduleCss;
-		fs.watch(src + css + modules + arrFiles[0], function (event, filename) {
-			files = 0;
-			processLess();
-		});
+		log("\nWatching " + src + " directory for changes. Crtl+C to quit.\n", yellow);
 		
+		var i, length, stats, path;
+
+		// Add Module Css
+		path = src + css + modules;
+		addWatchedFile(path,moduleCss);
+
+
+		// Add Main Css
+		path = src + css;
+		addWatchedFile(path,mainCss);
+
+		// Add Module Js
+		path = src + js + modules;
+		addWatchedFile(path,moduleJs);
+
+		// Add Main Js
+		path = src + js;
+		addWatchedFile(path,mainJs);
+
+		length = arrFiles.length;
+		for (i = 0; i < length; i++) {
+			fs.watch(arrFiles[i], function (event, filename) {
+				log("Reprocessing changes", yellow);
+				files = 0;
+				processLess();
+			});
+		}
+	}
+};
+
+var addWatchedFile = function(path, files) {
+	var length = files.length;
+	for (i = 0; i < length; i++) {
+		stats = fs.statSync(path + files[i]);
+		//readdirSync gets subdirectories
+		if (stats.isFile()) {
+			arrFiles.push(path + files[i]);
+		}
 	}
 };
 
