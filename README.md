@@ -9,7 +9,7 @@ clone repo and run
 node rplusbuild.js
 ```
 Options
-======
+-------
 ```
 Usage: rplusbuild.js [options]
 
