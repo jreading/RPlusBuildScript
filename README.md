@@ -3,15 +3,18 @@ RPlusBuildScript
 
 A modular js and LESS css build script for ResponsivePlus sites.
 
-clone repo and run 
+
+clone repo and run:
 
 ```
 node rplusbuild.js
 ```
-Options
--------
+---
+Usage
+---
+
 ```
-Usage: rplusbuild.js [options]
+rplusbuild.js [options]
 
   Options:
 
@@ -23,5 +26,25 @@ Usage: rplusbuild.js [options]
 	-css, --css <dir>     css dir in src dir; default: "css/"
 	-m,  --modules <dir>  modules dir in css|js dir; default: "modules/"
 	-w, --watch           rebuild on file(s) save
+```
 
+Example Dir Structure:
+---
+```
+    root
+    | - _src
+         | - js
+              core.js
+              | - modules
+                   my-module.js
+                   my-module.touch.js
+         | - css
+              base.css
+              phone.css
+              tablet.css
+              desktop.css
+              | - modules
+                   my-module.css
+                   my-module.touch.css
+    | - build
 ```
