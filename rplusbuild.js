@@ -6,23 +6,24 @@
 
 // Dependencies
 var fs = require('fs');
-var exec = require("child_process").exec;
+var exec = require('child_process').exec;
 var rplusbuild = require('commander');
-var rjs = require("requirejs");
+var rjs = require('requirejs');
 var less = require('less');
-var jsp = require("uglify-js").parser;
-var pro = require("uglify-js").uglify;
+var jsp = require('uglify-js').parser;
+var pro = require('uglify-js').uglify;
 var path = require('path');
 
 /* Commander Config */
 rplusbuild
-	.version('0.0.1')
+	.version('0.0.2')
 	.option('-s,  --src <dir>', 'source dir; default: "_src/"', String, '_src/')
 	.option('-b,  --build <dir>', 'build dir; default: "build/"', String, 'build/')
-	.option('-js, --js <dir>', 'javascript dir in src dir; default: "js/"', String, 'js/')
-	.option('-css, --css <dir>', 'css dir in src dir; default: "css/"', String, 'css/')
+	.option('-j, --js <dir>', 'javascript dir in src dir; default: "js/"', String, 'js/')
+	.option('-c, --css <dir>', 'css dir in src dir; default: "css/"', String, 'css/')
 	.option('-m,  --modules <dir>', 'modules dir in css|js dir; default: "modules/"', String, 'modules/')
 	.option('-w, --watch', 'rebuild on file(s) save', Boolean, false)
+	.option('-x, --nocompress', 'do not compress output', Boolean, false)
 	.on('--help', function(){
 		//nothing
 	})
@@ -34,6 +35,7 @@ var build = rplusbuild.build;
 var js = rplusbuild.js;
 var css = rplusbuild.css;
 var modules = rplusbuild.modules;
+var compress = !rplusbuild.nocompress;
 
 // Console colors
 var red = '\u001b[31m';
@@ -102,7 +104,7 @@ var processLess = function() {
 // Less/CSS conversion
 var compileLess = function(cssFile) {
 	var parser = new(less.Parser)({
-		paths: ['.', './_src/']
+		paths: ['.', './_src/css']
 	});
 
 	try {
@@ -118,7 +120,8 @@ var compileLess = function(cssFile) {
 				if (err) {
 					log(err, red);
 				} else {
-					fs.writeFileSync(build + cssFile.replace(".less",".min.css"), tree.toCSS({ compress: true }), "utf-8");
+					//do not write out min only files
+					fs.writeFileSync(build + cssFile.replace(".less",".min.css"), tree.toCSS({ compress: compress }), "utf-8");
 				}
 			});
 
@@ -136,14 +139,14 @@ var compileLess = function(cssFile) {
 var processJs = function() {
 	log("\n** Processing Js **");
 
-	var length, i, jsFile;
+	var length, i, jsFile, blnOptimize;
 	var arrJs = [];
-
+	blnOptimize = rplusbuild.nocompress ? "none" : "uglify" ;
 	// R.js config
 	var config = {
 		baseUrl: src + js + modules,
 		wrap: true,
-		optimize: "uglify",
+		optimize: blnOptimize,
 		uglify: {
 			//beautify: true
 		},
@@ -182,6 +185,7 @@ var processJs = function() {
 
 	// Uglify all js for standard amd implement
 	length = arrJs.length;
+	var out;
 	for (i = 0; i < length; i++) {
 		jsFile = js + arrJs[i];
 		try {
@@ -194,12 +198,16 @@ var processJs = function() {
 				var file = fs.readFileSync(src + jsFile, "utf-8");
 				// parse code and get the initial AST
 				var ast = jsp.parse(file);
-				// get a new AST with mangled names
-				ast = pro.ast_mangle(ast);
-				// get an AST with compression optimizations
-				ast = pro.ast_squeeze(ast);
-				// compressed code here
-				var out = pro.gen_code(ast);
+				if (rplusbuild.optimize) {
+					// get a new AST with mangled names
+					ast = pro.ast_mangle(ast);
+					// get an AST with compression optimizations
+					ast = pro.ast_squeeze(ast);
+					// compressed code here
+					out = pro.gen_code(ast);
+				} else {
+					out = file;
+				}
 				// write file here
 				fs.writeFileSync(build + jsFile.replace(".js",".min.js"), out, "utf-8");
 				log(jsFile.replace(".js",".min.js") + " - done", green);

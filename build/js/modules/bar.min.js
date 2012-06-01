@@ -1,1 +1,19 @@
-define(["foo"],function(a){var b=function(){function b(){var a="foo";return a}function c(){var a="bar";return a}console.log(a)};return b})
+define(['foo'],function(foo) {
+
+
+	var bar = function(){
+		console.log(foo);
+		function thisFunc() {
+			var foo = "foo";
+			return foo;
+		}
+
+
+		function anotherFunc() {
+			var bar = "bar";
+			return bar;
+		}
+	};
+
+	return bar;
+});
