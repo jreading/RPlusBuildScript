@@ -113,21 +113,22 @@ var compileLess = function(cssFile) {
 		if (!stats.isFile()) {
 			totalCssFiles--;
 		} else {
-			// TODO: add compression options as args
-			var file = fs.readFileSync(src + cssFile, "utf-8");
-			
-			parser.parse(file, function (err, tree) {
-				if (err) {
-					log(err, red);
-				} else {
-					//do not write out min only files
-					fs.writeFileSync(build + cssFile.replace(".less",".min.css"), tree.toCSS({ compress: compress }), "utf-8");
-				}
-			});
+			if (cssFile.indexOf('.partial') < 0) {
+				var file = fs.readFileSync(src + cssFile, "utf-8");
+				
+				parser.parse(file, function (err, tree) {
+					if (err) {
+						log(err, red);
+					} else {
+						//do not write out min only files
+						fs.writeFileSync(build + cssFile.replace(".less",".min.css"), tree.toCSS({ compress: compress }), "utf-8");
+					}
+				});
 
-			log(cssFile.replace(".less",".min.css") + " - done", green);
+				log(cssFile.replace(".less",".min.css") + " - done", green);
 
-			files++;
+				files++;
+			}
 		}
 
 	} catch(err){
@@ -198,7 +199,7 @@ var processJs = function() {
 				var file = fs.readFileSync(src + jsFile, "utf-8");
 				// parse code and get the initial AST
 				var ast = jsp.parse(file);
-				if (rplusbuild.optimize) {
+				if (compress) {
 					// get a new AST with mangled names
 					ast = pro.ast_mangle(ast);
 					// get an AST with compression optimizations
