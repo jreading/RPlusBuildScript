@@ -17,9 +17,9 @@ var path = require('path');
 /* Commander Config */
 rplusbuild
 	.version('0.0.2')
-	.option('-m,  --core <file>', 'core file; default: "marlboro.js"', String, 'core.js')
+	.option('-m,  --core <file>', 'core file; default: "core.js"', String, 'core.js')
 	.option('-s,  --src <dir>', 'source dir; default: "_src/"', String, '_src/')
-	.option('-b,  --build <dir>', 'build dir; default: "www/"', String, 'build/')
+	.option('-b,  --build <dir>', 'build dir; default: "build/"', String, 'build/')
 	.option('-j, --js <dir>', 'javascript dir in src dir; default: "js/"', String, 'js/')
 	.option('-c, --css <dir>', 'css dir in src dir; default: "css/"', String, 'css/')
 	.option('-m,  --modules <dir>', 'modules dir in css|js dir; default: "modules/"', String, 'modules/')
