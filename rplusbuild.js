@@ -17,8 +17,9 @@ var path = require('path');
 /* Commander Config */
 rplusbuild
 	.version('0.0.2')
+	.option('-m,  --core <file>', 'core file; default: "marlboro.js"', String, 'core.js')
 	.option('-s,  --src <dir>', 'source dir; default: "_src/"', String, '_src/')
-	.option('-b,  --build <dir>', 'build dir; default: "build/"', String, 'build/')
+	.option('-b,  --build <dir>', 'build dir; default: "www/"', String, 'build/')
 	.option('-j, --js <dir>', 'javascript dir in src dir; default: "js/"', String, 'js/')
 	.option('-c, --css <dir>', 'css dir in src dir; default: "css/"', String, 'css/')
 	.option('-m,  --modules <dir>', 'modules dir in css|js dir; default: "modules/"', String, 'modules/')
@@ -30,6 +31,7 @@ rplusbuild
 	.parse(process.argv);
 
 /* Pass in arguments with defaults */
+var coreJs = rplusbuild.core;
 var src = rplusbuild.src;
 var build = rplusbuild.build;
 var js = rplusbuild.js;
@@ -46,7 +48,7 @@ var magenta  = '\u001b[35m';
 var reset = '\u001b[0m';
 
 // Get files for processing
-var moduleCss, moduleJs, mainCss, mainJs, totalCssFiles, totalJsFiles;
+var moduleCss, moduleJs, mainCss, mainJs, watching;
 var files = 0;
 var arrFiles = [];
 
@@ -59,18 +61,16 @@ var init = function() {
 		moduleJs = fs.readdirSync(src + js + modules);
 		mainCss = fs.readdirSync(src + css);
 		mainJs = fs.readdirSync(src + js);
-		totalCssFiles = moduleCss.length + mainCss.length;
-		totalJsFiles = moduleJs.length + mainJs.length;
 		processLess();
 	} catch (e) {
 		log(e,red);
 	}
 };
 
+
+
 // Handle Less
 var processLess = function() {
-	log("\n** Processing Less **");
-
 	var length, i, cssFile;
 
 	// mkdir if not exist for lessc
@@ -80,6 +80,8 @@ var processLess = function() {
 		});
 		return;
 	}
+
+	log("\n** Processing Less **");
 
 	// Process Module Css
 	length = moduleCss.length;
@@ -95,42 +97,34 @@ var processLess = function() {
 		compileLess(cssFile);
 	}
 
-	// TODO: Create Full.css for responsive fallback
-	log("TODO: Create Full.css for responsive fallback", magenta);
-
 	processJs();
 };
 
 // Less/CSS conversion
 var compileLess = function(cssFile) {
-	var parser = new(less.Parser)({
-		paths: ['.', './_src/css']
-	});
-
 	try {
 		var stats = fs.statSync(src + cssFile);
+
 		//readdirSync gets subdirectories
-		if (!stats.isFile()) {
-			totalCssFiles--;
-		} else {
+		if (stats.isFile() && cssFile.indexOf('/.') < 0) {
+		
 			if (cssFile.indexOf('.partial') < 0) {
 				var file = fs.readFileSync(src + cssFile, "utf-8");
-				
-				parser.parse(file, function (err, tree) {
+				var lessParser = new(less.Parser)({
+					paths: ['.', './' + src + css]
+				});
+				lessParser.parse(file, function (err, tree) {
 					if (err) {
 						log(err, red);
 					} else {
-						//do not write out min only files
 						fs.writeFileSync(build + cssFile.replace(".less",".min.css"), tree.toCSS({ compress: compress }), "utf-8");
+					
 					}
 				});
-
 				log(cssFile.replace(".less",".min.css") + " - done", green);
-
 				files++;
 			}
 		}
-
 	} catch(err){
 		log(err,red);
 	}
@@ -138,11 +132,20 @@ var compileLess = function(cssFile) {
 
 // JS minification AMD bundling
 var processJs = function() {
+	var length, i, jsFile, blnOptimize, stats;
+	var arrJs = [];
+
+	// mkdir if not exist for r.js
+	if (!path.existsSync(build + js + modules)) {
+		exec("mkdir -p " + build + js + modules, function(){
+			processJs();
+		});
+		return;
+	}
 	log("\n** Processing Js **");
 
-	var length, i, jsFile, blnOptimize;
-	var arrJs = [];
 	blnOptimize = rplusbuild.nocompress ? "none" : "uglify" ;
+
 	// R.js config
 	var config = {
 		baseUrl: src + js + modules,
@@ -166,68 +169,86 @@ var processJs = function() {
 	length = moduleJs.length;
 	for (i = 0; i < length; i++) {
 		jsFile = js + modules + moduleJs[i];
-		config.name = moduleJs[i].replace(".js","");
-		config.out = build + jsFile.replace(".js",".thin.js");
-		try {
-			rjs.optimize(config);
-			log(jsFile.replace(".js",".thin.js") + " - done", green);
+		stats = fs.statSync(src + jsFile);
+		if (stats.isFile() && moduleJs[i].indexOf('.') > 0) {
+			config.name = moduleJs[i].replace(".js","");
+			config.out = build + jsFile.replace(".js",".thin.js");
+			try {
+				rjs.optimize(config);
+				log(jsFile.replace(".js",".thin.js") + " - done", green);
+				files++;
+			} catch(err){
+				log(err,red);
+			}
+
+			// make .mins
+			file = fs.readFileSync(src + jsFile, "utf-8");
+			if (compress) {
+				file = applyCompression(file);
+			}
 			files++;
-		} catch(err){
-			log(err,red);
+			fs.writeFileSync(build + jsFile, file, "utf-8");
+			log(jsFile + " - done", green);
+
 		}
 	}
 
-	// Create array of all js files relative to src
-	length = moduleJs.length;
-	for (i = 0; i < length; i++) {
-		arrJs.push(modules + moduleJs[i]);
-	}
-	arrJs = mainJs.concat(arrJs);
-
-	// Uglify all js for standard amd implement
-	length = arrJs.length;
-	var out;
-	for (i = 0; i < length; i++) {
-		jsFile = js + arrJs[i];
+	var out, file, ast;
+	var concat = "";
+	for (i = 0; i < mainJs.length; i++) {
+		jsFile = js + mainJs[i];
 		try {
-			var stats = fs.statSync(src + jsFile);
+			stats = fs.statSync(src + jsFile);
+
 			//readdirSync gets subdirectories
-			if (!stats.isFile()) {
-				totalJsFiles--;
-			} else {
-				// TODO: add compression options as args
-				var file = fs.readFileSync(src + jsFile, "utf-8");
-				// parse code and get the initial AST
-				var ast = jsp.parse(file);
-				if (compress) {
-					// get a new AST with mangled names
-					ast = pro.ast_mangle(ast);
-					// get an AST with compression optimizations
-					ast = pro.ast_squeeze(ast);
-					// compressed code here
-					out = pro.gen_code(ast);
+			if (stats.isFile() && jsFile.indexOf('.') > 0) {
+				if (jsFile.indexOf(coreJs) < 0) {
+					concat += fs.readFileSync(src + jsFile, "utf-8") + '\n\n\n\n';
 				} else {
-					out = file;
+					file = fs.readFileSync(src + jsFile, "utf-8");
+					// parse code and get the initial AST
+					if (compress) {
+						file = applyCompression(file);
+					}
+					files++;
+					fs.writeFileSync(build + jsFile.replace(".js",".thin.js"), file, "utf-8");
+					log(jsFile.replace(".js",".thin.js") + " - done", green);
 				}
-				// write file here
-				fs.writeFileSync(build + jsFile.replace(".js",".min.js"), out, "utf-8");
-				log(jsFile.replace(".js",".min.js") + " - done", green);
-				files++;
 			}
 		} catch(err){
 			log(err,red);
 		}
 	}
-	/// TODO: Create core.thin.js file
-	log("TODO: Create core.thin.js file", magenta);
+
+	// full core file
+	if (compress) {
+		file = applyCompression(file + concat);
+	} else {
+		file = file + concat;
+	}
+	files++;
+	fs.writeFileSync(build + js + coreJs.replace(".js",".min.js"), file, "utf-8");
+	log(js + coreJs.replace(".js",".min.js") + " - done", green);
 	finish();
+};
+
+var applyCompression = function(file) {
+	ast = jsp.parse(file);
+	// get a new AST with mangled names
+	ast = pro.ast_mangle(ast);
+	// get an AST with compression optimizations
+	ast = pro.ast_squeeze(ast);
+	// compressed code here
+	return pro.gen_code(ast);
 };
 
 var finish = function() {
 	log("\n("+files+") files affected.", yellow);
+	
 	if (rplusbuild.watch) {
 		log("\nWatching " + src + " directory for changes. Crtl+C to quit.\n", yellow);
-		
+		if (watching) return;
+		watching = true;
 		var i, length, stats, path;
 
 		// Add Module Css
@@ -262,7 +283,7 @@ var addWatchedFile = function(path, files) {
 	for (i = 0; i < length; i++) {
 		stats = fs.statSync(path + files[i]);
 		//readdirSync gets subdirectories
-		if (stats.isFile()) {
+		if (stats.isFile() && files[i].indexOf(".") > 0) {
 			arrFiles.push(path + files[i]);
 		}
 	}
