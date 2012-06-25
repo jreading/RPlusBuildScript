@@ -1,1 +1,3 @@
-var core={}
+var core = {
+
+};

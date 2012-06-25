@@ -1,6 +1,6 @@
 /*
-* Less.js & AMD preprocessor for ResponsivePlus sites v0.0.1
-* nodejs v0.6.17
+* Less.js & AMD preprocessor for ResponsivePlus sites v0.0.2
+* nodejs v0.8
 * @author: John Reading
 */
 
@@ -12,7 +12,6 @@ var rjs = require('requirejs');
 var less = require('less');
 var jsp = require('uglify-js').parser;
 var pro = require('uglify-js').uglify;
-var path = require('path');
 
 /* Commander Config */
 rplusbuild
@@ -54,7 +53,7 @@ var arrFiles = [];
 
 var init = function() {
 	log("********************************\n"+
-	"**** rplusbuild.js - v0.0.1 ****\n"+
+	"**** rplusbuild.js - v0.0.2 ****\n"+
 	"******************************** ", yellow);
 	try {
 		moduleCss = fs.readdirSync(src + css + modules);
@@ -67,14 +66,12 @@ var init = function() {
 	}
 };
 
-
-
 // Handle Less
 var processLess = function() {
 	var length, i, cssFile;
 
 	// mkdir if not exist for lessc
-	if (!path.existsSync(build + css + modules)) {
+	if (!fs.existsSync(build + css + modules)) {
 		exec("mkdir -p " + build + css + modules, function(){
 			processLess();
 		});
@@ -106,8 +103,7 @@ var compileLess = function(cssFile) {
 		var stats = fs.statSync(src + cssFile);
 
 		//readdirSync gets subdirectories
-		if (stats.isFile() && cssFile.indexOf('/.') < 0) {
-		
+		if (stats.isFile() && cssFile.indexOf('.less') > 0) {
 			if (cssFile.indexOf('.partial') < 0) {
 				var file = fs.readFileSync(src + cssFile, "utf-8");
 				var lessParser = new(less.Parser)({
@@ -118,7 +114,6 @@ var compileLess = function(cssFile) {
 						log(err, red);
 					} else {
 						fs.writeFileSync(build + cssFile.replace(".less",".min.css"), tree.toCSS({ compress: compress }), "utf-8");
-					
 					}
 				});
 				log(cssFile.replace(".less",".min.css") + " - done", green);
@@ -136,7 +131,7 @@ var processJs = function() {
 	var arrJs = [];
 
 	// mkdir if not exist for r.js
-	if (!path.existsSync(build + js + modules)) {
+	if (!fs.existsSync(build + js + modules)) {
 		exec("mkdir -p " + build + js + modules, function(){
 			processJs();
 		});
@@ -170,7 +165,7 @@ var processJs = function() {
 	for (i = 0; i < length; i++) {
 		jsFile = js + modules + moduleJs[i];
 		stats = fs.statSync(src + jsFile);
-		if (stats.isFile() && moduleJs[i].indexOf('.') > 0) {
+		if (stats.isFile() && moduleJs[i].indexOf('.js') > 0) {
 			config.name = moduleJs[i].replace(".js","");
 			config.out = build + jsFile.replace(".js",".thin.js");
 			try {
@@ -193,7 +188,7 @@ var processJs = function() {
 		}
 	}
 
-	var out, file, ast;
+	var out, core, ast, corebundle;
 	var concat = "";
 	for (i = 0; i < mainJs.length; i++) {
 		jsFile = js + mainJs[i];
@@ -201,17 +196,21 @@ var processJs = function() {
 			stats = fs.statSync(src + jsFile);
 
 			//readdirSync gets subdirectories
-			if (stats.isFile() && jsFile.indexOf('.') > 0) {
+			if (stats.isFile() && jsFile.indexOf('.js') > 0) {
 				if (jsFile.indexOf(coreJs) < 0) {
-					concat += fs.readFileSync(src + jsFile, "utf-8") + '\n\n\n\n';
+					corebundle = fs.readFileSync(src + jsFile, "utf-8") + '\n\n\n\n';
+					if (compress && jsFile.indexOf('.min') < 0) {
+						corebundle = applyCompression(corebundle);
+					}
+					concat += corebundle;
 				} else {
-					file = fs.readFileSync(src + jsFile, "utf-8");
+					core = fs.readFileSync(src + jsFile, "utf-8");
 					// parse code and get the initial AST
 					if (compress) {
-						file = applyCompression(file);
+						core = applyCompression(core);
 					}
 					files++;
-					fs.writeFileSync(build + jsFile.replace(".js",".thin.js"), file, "utf-8");
+					fs.writeFileSync(build + jsFile.replace(".js",".thin.js"), core, "utf-8");
 					log(jsFile.replace(".js",".thin.js") + " - done", green);
 				}
 			}
@@ -221,13 +220,9 @@ var processJs = function() {
 	}
 
 	// full core file
-	if (compress) {
-		file = applyCompression(file + concat);
-	} else {
-		file = file + concat;
-	}
+	core += concat;
 	files++;
-	fs.writeFileSync(build + js + coreJs.replace(".js",".min.js"), file, "utf-8");
+	fs.writeFileSync(build + js + coreJs.replace(".js",".min.js"), core, "utf-8");
 	log(js + coreJs.replace(".js",".min.js") + " - done", green);
 	finish();
 };

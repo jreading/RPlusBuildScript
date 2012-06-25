@@ -1,1 +1,11 @@
-define([],function(){var a=function(){function a(){var a="foo"}};return a})
+define([],function() {
+
+	var foo = function(){
+		function thisFunc() {
+			var foo = "foo";
+		}
+	};
+
+	return foo;
+
+});
