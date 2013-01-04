@@ -40,12 +40,14 @@ Example Dir Structure:
                    my-module.js
                    my-module.touch.js
          | - css
-              base.css
-              phone.css
-              tablet.css
-              desktop.css
-              | - modules
-                   my-module.css
-                   my-module.touch.css
+              base.less
+              phone.less
+              tablet.less
+              desktop.less
+              | - section
+                   base.less
+                   phone.less
+                   tablet.less
+                   desktop.less
     | - build
 ```
