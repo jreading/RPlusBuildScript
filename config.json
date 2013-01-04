@@ -1,0 +1,28 @@
+{
+	"core" : {
+		"name": "altria.js",
+		"thin": {
+			"include" : ["jquery.min.js", "phone.js"]
+			},
+		"min": {
+			"include" : ["jquery.min.js", "modernizr.min.js", "require.min.js", "require.config.js"]
+			}
+		},
+	"dirs": {
+		"source" : "_src/",
+		"build": "www/",
+		"js": {
+			"main": "js/",
+			"modules": "modules/"
+		},
+		"libs": "libs/",
+		"css": {
+			"main": "css/"
+		}
+	},
+	"options": {
+		"watch": false,
+		"nocompress": false
+	}
+}
+
