@@ -51,8 +51,7 @@ var init = function() {
 			.parse(process.argv);
 
 		/*
-			Pass in arguments with defaults
-			TODO: Move these to config file
+		Pass in arguments with defaults
 		*/
 		coreJs = rplusbuild.core;
 		src = rplusbuild.src;
