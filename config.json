@@ -18,7 +18,8 @@
 		"libs": "libs/",
 		"css": {
 			"main": "css/"
-		}
+		},
+		"sections": ""
 	},
 	"options": {
 		"watch": false,
