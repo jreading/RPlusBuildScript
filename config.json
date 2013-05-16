@@ -1,6 +1,6 @@
 {
 	"core" : {
-		"name": "altria.js",
+		"name": "core.js",
 		"thin": {
 			"include" : ["jquery.min.js", "phone.js"]
 			},
@@ -10,7 +10,7 @@
 		},
 	"dirs": {
 		"source" : "_src/",
-		"build": "www/",
+		"build": "build/",
 		"js": {
 			"main": "js/",
 			"modules": "modules/"
