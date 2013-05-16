@@ -1,6 +1,6 @@
 {
 	"core" : {
-		"name": "altria.js",
+		"name": "core.js",
 		"thin": {
 			"include" : ["jquery.min.js", "phone.js"]
 			},
