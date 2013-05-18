@@ -1,4 +1,10 @@
 {
+	"name": "RPlusBuildScript - Grunt",
+	"description": "Grunt Build Script for Responsive + Websites",
+	"version": "0.1.0",
+	"author": "iCrossing",
+	"company": "iCrossing",
+	"lastModified": "5/17/13",
 	"core" : {
 		"name": "core.js",
 		"thin": {
@@ -15,6 +21,7 @@
 			"main": "js/",
 			"modules": "modules/"
 		},
+		"images": "img/",
 		"libs": "libs/",
 		"css": {
 			"main": "css/"
@@ -26,4 +33,3 @@
 		"nocompress": false
 	}
 }
-

@@ -91,7 +91,6 @@ module.exports = function (grunt) {
                     cwd: '<%= cfg.dirs.source %>',
                     dest: '<%= cfg.dirs.build %>',
                     src: [
-                        '<%= cfg.dirs.componentsDir %>/requirejs/require.js',
                         '*.{ico,txt}',
                         '.htaccess'
                     ]
@@ -150,7 +149,6 @@ module.exports = function (grunt) {
         'imagemin',
         'cssmin'
 	]);
-
 
 	//Run Legacy Node Script - TO BE REMOVED
 	grunt.registerTask('old', function (target) {

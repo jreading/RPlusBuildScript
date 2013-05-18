@@ -141,7 +141,7 @@ module.exports = function(grunt) {
 				} else {
 					//add css as var
 					parsedLess = tree.toCSS({ compress: compress });
-					console.log('les');
+					
 					//look for base64 encode flag
 					if (cssFile.indexOf('phone') > -1) {
 
@@ -159,7 +159,7 @@ module.exports = function(grunt) {
 							}
 						});
 					}
-					console.log(parsedLess);
+					
 					fs.writeFile(build + cssFile.replace(".less",".min.css"), parsedLess, "utf-8", function(){
 						console.log('writereturn');
 						lessCount++;
