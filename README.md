@@ -1,33 +1,22 @@
 RPlusBuildScript
 ================
 
-A modular js and LESS css build script for ResponsivePlus sites.
+A modular js and LESS css grunt build script for ResponsivePlus sites.
 
 
 clone repo and run:
 
 ```
-node rplusbuild.js
+grunt rp
 ```
----
-Usage
----
+This will currently clean, compile the .less to .css, and run watch. With watch, any time a .less file is modified, the watch process triggers a re-compile. 
 
+Running
 ```
-rplusbuild.js [options]
-
-  Options:
-
-	-h, --help            output usage information
-	-V, --version         output the version number
- 	-m, --core            core file; default: "core.js"
-	-s,  --src <dir>      source dir; default: "_src/"
- 	-b,  --build <dir>    build dir; default: "build/"
-	-js, --js <dir>       javascript dir in src dir; default: "js/"
-	-css, --css <dir>     css dir in src dir; default: "css/"
-	-m,  --modules <dir>  modules dir in css|js dir; default: "modules/"
-	-w, --watch           rebuild on file(s) save
+grunt build
 ```
+This will currently clean, compile .less to .css, image minification handle image minification, css minification, and run the processJs task
+
 
 Example Dir Structure:
 ---
