@@ -37,23 +37,46 @@ module.exports = function (grunt) {
 		},
 
         //********************************************************************************
-		//	Compile Require.JS Modules - TODO
+		//	Compile Require.JS Modules - CHALLENGE TO REPLACE PROCESSJS
 		//********************************************************************************
-		requirejs: {
+		/*requirejs: {
             build: {
                 // Options: https://github.com/jrburke/r.js/blob/master/build/example.build.js
                 options: {
-                    optimize: 'none',
+                    optimize: 'none', //handle optimization in separate tasks
+                    skipModuleInsertion: true,
                     preserveLicenseComments: false,
                     useStrict: true,
                     wrap: true,
-                    mainConfigFile: ''
+                    dir: '<%= cfg.dirs.build %><%= cfg.dirs.js.main %>',
+                    mainConfigFile: '<%= cfg.dirs.source %><%= cfg.dirs.js.main %>require.config.js',
+                    baseUrl: '<%= cfg.dirs.source %><%= cfg.dirs.js.main %>'
+                }
+            },
+            thin: {
+                options: {
+                    optimize: 'none', //handle optimization in separate tasks
+                    skipModuleInsertion: true,
+                    preserveLicenseComments: false,
+                    useStrict: true,
+                    wrap: true,
+                    dir: '<%= cfg.dirs.build %><%= cfg.dirs.js.main %>',
+                    mainConfigFile: '<%= cfg.dirs.source %><%= cfg.dirs.js.main %>require.config.js',
+                    baseUrl: '<%= cfg.dirs.source %><%= cfg.dirs.js.main %>',
+                    fileExclusionRegExp: /\.(?!thin).*\.js/,
+                    onBuildWrite : function (moduleName, path, contents) {
+                        //Remove AMD ceremony for use without require.js or almond.js
+                        if ((/define\(.*?\{/).test(contents)) {
+                            contents = contents.replace(/define\(.*?\{/, '').replace(/return.*[^return]*$/,'');
+                            return contents;
+                        }
+                    }
                 }
             }
-        },
+        },*/
 
 		//********************************************************************************
-		//	Optimize Presentation Layer
+		//	Optimize Presentation Layer - TODO Inline base64 Images For Mobile
 		//********************************************************************************
         imagemin: {
             build: {
@@ -89,11 +112,11 @@ module.exports = function (grunt) {
                     expand: true,
                     dot: true,
                     cwd: '<%= cfg.dirs.source %>',
-                    dest: '<%= cfg.dirs.build %>',
                     src: [
                         '*.{ico,txt}',
                         '.htaccess'
-                    ]
+                    ],
+                    dest: '<%= cfg.dirs.build %>'
                 }]
             }
         },
@@ -115,15 +138,22 @@ module.exports = function (grunt) {
 				//'  Copyright (c) <%= grunt.template.today("yyyy")%>\n*/\n',
 				mangle : false
 			},
-            files: {
-                expand: true,     // Enable dynamic expansion.
-                cwd: '<%= cfg.dirs.source %><%= cfg.dirs.js %>',
-                src: ['**/*.js'], // Actual pattern(s) to match.
-                dest: '<%= cfg.dirs.build %><%= cfg.dirs.js %>'   // Destination path prefix.
+            build : {
+                files: {
+                    expand: true,     // Enable dynamic expansion.
+                    cwd: '<%= cfg.dirs.source %><%= cfg.dirs.js %>',
+                    src: '<%= cfg.core.name %>,<%= cfg.core.thin.include %>',
+                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.js %><%= cfg.core.name %>',
+                    ext: '.thin.js'
+                }
             }
 		},
-		responsivePlus: {
-			build: 'NO_CONFIG_HERE'
+		processJs: {
+			build: {
+                options: {
+                    beautify : false
+                }
+            }
 		}
 	});
 
@@ -131,7 +161,6 @@ module.exports = function (grunt) {
 	//	Grunt Build Options - Executed from command line as "grunt taskname"
 	//********************************************************************************
 	
-	//compile local: rp for Responsive Plus? Not sure....
 	//"grunt rp"
 	grunt.registerTask('rp', function(){
 		grunt.task.run([
@@ -141,21 +170,19 @@ module.exports = function (grunt) {
 		]);
     });
 
-	//Compile for Primetime
+	//Compile for Primetime 
 	//"grunt build"
 	grunt.registerTask('build', [
         'clean',
         'less',
         'imagemin',
-        'cssmin'
+        'cssmin',
+        //'requirejs' //TO REPLACE PROCESSJS
+        'processJs' //LEGACY FOR NOW
+        //'uglify' //TO REPLACE PROCESSJS
 	]);
-
-	//Run Legacy Node Script - TO BE REMOVED
-	grunt.registerTask('old', function (target) {
-		grunt.task.loadTasks('tasks');
-		grunt.task.run('responsivePlus');
-    });
 
 	//Set Default Task
 	grunt.registerTask('default', ['build']);
+    grunt.task.loadTasks('tasks');
 };
