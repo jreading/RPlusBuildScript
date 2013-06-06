@@ -1,27 +1,38 @@
 {
-  "name": "Rplus Build Script",
-  "version": "0.0.3",
-  "description": "",
+  "name": "Rplus_Build_Script",
+  "version": "0.0.1",
+  "description": "Grunt Build Script for Responsive Plus Websites",
   "author": "John Reading",
-  "contributors": [{
-    "name": "John Reading",
-    "email": "john@resonancemultimedia.com"
-  }, {
-    "name": "Sean Shedlarski",
-    "email": "sean.shedlarski@icrossing.com"
-  }],
-  "dirs": {
-    "build": "build",
-    "src": "_src"
-  },
-  "devDependencies": {
-    
-  },
+  "contributors": [
+    {
+      "name": "John Reading",
+      "email": "john@resonancemultimedia.com"
+    },
+    {
+      "name": "Sean Shedlarski",
+      "email": "sean.shedlarski@icrossing.com"
+    },
+    {
+      "name": "Jamie Andrews",
+      "email": "jamie.andrews@icrossing.com"
+    }
+  ],
+  "devDependencies": {},
   "dependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-less": "0.5.1",
+    "grunt-contrib-clean": "0.4.1",
+    "grunt-contrib-cssmin": "~0.6.0",
+    "grunt-contrib-imagemin": "~0.1.4",
+    "grunt-contrib-requirejs": "~0.4.1",
+    "grunt-contrib-uglify": "~0.2.0",
+    "grunt-contrib-copy": "~0.4.1",
+    "matchdep": "~0.1.1",
     "commander": "0.6.1",
     "less": "1.3.0",
     "requirejs": "2.0.5",
-    "uglify-js": "1.3.3"
+    "uglify-js": "1.3.3",
+    "grunt-contrib-watch": "~0.4.3"
   },
   "engine": {
     "node": "= 0.8"
