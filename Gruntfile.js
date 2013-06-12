@@ -36,48 +36,6 @@ module.exports = function (grunt) {
 			}
 		},
 
-        //********************************************************************************
-		//	Compile Require.JS Modules - CHALLENGE TO REPLACE PROCESSJS
-		//********************************************************************************
-		/*requirejs: {
-            build: {
-                // Options: https://github.com/jrburke/r.js/blob/master/build/example.build.js
-                options: {
-                    optimize: 'none', //handle optimization in separate tasks
-                    skipModuleInsertion: true,
-                    preserveLicenseComments: false,
-                    useStrict: true,
-                    wrap: true,
-                    dir: '<%= cfg.dirs.build %><%= cfg.dirs.js.main %>',
-                    mainConfigFile: '<%= cfg.dirs.source %><%= cfg.dirs.js.main %>require.config.js',
-                    baseUrl: '<%= cfg.dirs.source %><%= cfg.dirs.js.main %>'
-                }
-            },
-            thin: {
-                options: {
-                    optimize: 'none', //handle optimization in separate tasks
-                    skipModuleInsertion: true,
-                    preserveLicenseComments: false,
-                    useStrict: true,
-                    wrap: true,
-                    dir: '<%= cfg.dirs.build %><%= cfg.dirs.js.main %>',
-                    mainConfigFile: '<%= cfg.dirs.source %><%= cfg.dirs.js.main %>require.config.js',
-                    baseUrl: '<%= cfg.dirs.source %><%= cfg.dirs.js.main %>',
-                    fileExclusionRegExp: /\.(?!thin).*\.js/,
-                    onBuildWrite : function (moduleName, path, contents) {
-                        //Remove AMD ceremony for use without require.js or almond.js
-                        if ((/define\(.*?\{/).test(contents)) {
-                            contents = contents.replace(/define\(.*?\{/, '').replace(/return.*[^return]*$/,'');
-                            return contents;
-                        }
-                    }
-                }
-            }
-        },*/
-
-		//********************************************************************************
-		//	Optimize Presentation Layer - TODO Inline base64 Images For Mobile
-		//********************************************************************************
         imagemin: {
             build: {
                 files: [{
@@ -103,20 +61,13 @@ module.exports = function (grunt) {
             }
         },
 
-		//********************************************************************************
-		//	Copy any Files that don't need processing to build - TODO
-		//********************************************************************************
-        copy: {
+        encodeImages: {
             build: {
                 files: [{
                     expand: true,
-                    dot: true,
-                    cwd: '<%= cfg.dirs.source %>',
-                    src: [
-                        '*.{ico,txt}',
-                        '.htaccess'
-                    ],
-                    dest: '<%= cfg.dirs.build %>'
+                    cwd: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
+                    src: '**/phone.min.css',
+                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>'
                 }]
             }
         },
@@ -131,23 +82,6 @@ module.exports = function (grunt) {
             }
         },
 
-		uglify: {
-			options: {
-				//banner: '/*\n  <%= cfg.name %>\n  v<%= cfg.version %> - ' +
-				//'<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-				//'  Copyright (c) <%= grunt.template.today("yyyy")%>\n*/\n',
-				mangle : false
-			},
-            build : {
-                files: {
-                    expand: true,     // Enable dynamic expansion.
-                    cwd: '<%= cfg.dirs.source %><%= cfg.dirs.js %>',
-                    src: '<%= cfg.core.name %>,<%= cfg.core.thin.include %>',
-                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.js %><%= cfg.core.name %>',
-                    ext: '.thin.js'
-                }
-            }
-		},
 		processJs: {
 			build: {
                 options: {
@@ -177,6 +111,7 @@ module.exports = function (grunt) {
         'less',
         'imagemin',
         'cssmin',
+        'encodeImages',
         //'requirejs' //TO REPLACE PROCESSJS
         'processJs' //LEGACY FOR NOW
         //'uglify' //TO REPLACE PROCESSJS

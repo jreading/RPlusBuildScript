@@ -21,7 +21,7 @@
 			"main": "js/",
 			"modules": "modules/"
 		},
-		"images": "img/",
+		"images": "images/",
 		"libs": "libs/",
 		"css": {
 			"main": "css/"
