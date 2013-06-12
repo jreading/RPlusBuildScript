@@ -22,6 +22,8 @@ module.exports = function(grunt) {
 	//********************************************************************************
 	grunt.task.registerMultiTask('encodeImages', 'Encode css images to base64 data-uri for mobile.', function() {
 		try {
+			
+			var destDir = this.files[0].dest.split('/')[0]; 
 
 			this.files.forEach(function(f) {
 				var valid = f.src.filter(function(filepath) {
@@ -33,12 +35,13 @@ module.exports = function(grunt) {
 						return true;
 					}
 				});
-				var config = JSON.parse(fs.readFileSync('config.json', 'ascii'));
+
 				var base64Cnt = 0;
 
 				var file = fs.readFileSync(f.src.toString(), "utf-8");
 				file = file.replace(/url\(["']?(\S*)\.(png|jpg|jpeg|gif)["']?\)/g, function(match, file, type) {
-					var fileName = config.dirs.build.replace('/','') + file + '.' + type;
+					var fileName = destDir.replace('/','') + file + '.' + type;
+
 					try {
 						var base64 = fs.readFileSync(fileName).toString('base64');
 						base64Cnt++;

@@ -68,7 +68,8 @@ module.exports = function (grunt) {
                     cwd: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
                     src: '**/phone.min.css',
                     dest: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>'
-                }]
+                }],
+                destDir: '<%= cfg.dirs.build %>'
             }
         },
 
