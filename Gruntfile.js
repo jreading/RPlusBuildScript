@@ -104,7 +104,7 @@ module.exports = function (grunt) {
 		]);
     });
 
-	//Compile for Primetime 
+	//Compile for Primetime
 	//"grunt build"
 	grunt.registerTask('build', [
         'clean',
@@ -112,9 +112,7 @@ module.exports = function (grunt) {
         'imagemin',
         'cssmin',
         'encodeImages',
-        //'requirejs' //TO REPLACE PROCESSJS
-        'processJs' //LEGACY FOR NOW
-        //'uglify' //TO REPLACE PROCESSJS
+        'processJs'
 	]);
 
 	//Set Default Task

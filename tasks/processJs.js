@@ -14,12 +14,6 @@ module.exports = function(grunt) {
 	var jsp = require('uglify-js').parser;
 	var pro = require('uglify-js').uglify;
 
-	// Console colors
-	var red = '\u001b[31m';
-	var green = '\u001b[32m';
-	var yellow  = '\u001b[33m';
-	var blue  = '\u001b[34m';
-	var reset = '\u001b[0m';
 
 	// Global
 	var moduleJs, mainJs, sections, config, coreJS, src, build, libs, libJs, sectionsJsDir, js, modules, compress, sectionJs, stat, path, options;
@@ -33,7 +27,6 @@ module.exports = function(grunt) {
 		var thinbundle = "";
 		var minbundle = "";
 
-		log("\n** Processing Js **");
 		// mkdir if not exist for r.js
 		if(!fs.existsSync(build + js)){
 			fs.mkdirSync(build + js);
@@ -78,16 +71,16 @@ module.exports = function(grunt) {
 					Rjsconfig.out = build + jsFile.replace(".js",".thin.js");
 					try {
 						rjs.optimize(Rjsconfig);
-						log(jsFile.replace(".js",".thin.js") + " - done", green);
+						grunt.log.writelns("File " + jsFile.replace(".js",".thin.js") + " created.");
 						files++;
 					} catch(err){
-						log("processJs - Module : " + jsFile + err,red);
+						grunt.log.errorlns("processJs - Module : " + jsFile + err);
 					}
 
 					file = applyCompression(fs.readFileSync(src + jsFile, "utf-8"));
 					files++;
 					fs.writeFileSync(build + jsFile, file, "utf-8");
-					log(jsFile + " - done", green);
+					grunt.log.writelns("File " + jsFile + " created.");
 
 				}
 			}
@@ -105,17 +98,17 @@ module.exports = function(grunt) {
 				}
 				core = applyCompression(fs.readFileSync(src + js + config.core.name, "utf-8"));
 			} catch(err){
-				log("processJs - Core : " + err,red);
+				grunt.log.errorlns("processJs - Core : " + err);
 			}
 
 			// write core files
 			fs.writeFileSync(build + js + coreJS.replace(".js",".min.js"), core + ';' + minbundle, "utf-8");
 			files++;
-			log(js + coreJS.replace(".js",".min.js") + " - done", green);
+			grunt.log.writelns("File " + js + coreJS.replace(".js",".min.js") + " created.");
 
 			fs.writeFileSync(build  + js + coreJS.replace(".js",".thin.js"), core + ';' + thinbundle, "utf-8");
 			files++;
-			log(js + coreJS.replace(".js",".thin.js") + " - done", green);
+			grunt.log.writelns("File " + js + coreJS.replace(".js",".thin.js") + " created.");
 			
 			//move libs
 			length = libJs.length;
@@ -127,7 +120,7 @@ module.exports = function(grunt) {
 					file = jsFile.indexOf('.min') > -1 ? file : applyCompression(file);
 					files++;
 					fs.writeFileSync(build + jsFile, file, "utf-8");
-					log(jsFile + " - done", green);
+					grunt.log.writelns("File " + jsFile + " - moved.");
 				}
 			}
 		}
@@ -155,7 +148,7 @@ module.exports = function(grunt) {
 						file = jsFile.indexOf('.min') > -1 ? file : applyCompression(file);
 						files++;
 						fs.writeFileSync(build + jsFile, file, "utf-8");
-						log(jsFile + " - done", green);
+						grunt.log.writelns("File " + jsFile + " - moved.");
 					}
 				}
 			}
@@ -179,15 +172,10 @@ module.exports = function(grunt) {
 	};
 
 	var finish = function() {
-		log("\n("+files+") files affected.", yellow);
+		grunt.log.oklns("\n("+files+") files affected.");
 	};
 
 
-	//log with colors
-	var log = function(str, color) {
-		if (!color) color = blue;
-		console.log(color + str + reset);
-	};
 
 	//********************************************************************************
 	//	Register The Grunt Task To Run
@@ -217,13 +205,13 @@ module.exports = function(grunt) {
 			mainJs = fs.readdirSync(src + js);
 
 			if (sections) {
-				log("Building only: " + sections,red);
+				grunt.log.errorlns("Building only: " + sections);
 			}
 
 			/* Start processing chain */
 			processJs();
 		} catch (e) {
-			log(e,red);
-		};
+			grunt.log.errorlns(e);
+		}
 	});
 };
