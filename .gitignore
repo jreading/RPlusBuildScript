@@ -1,4 +1,11 @@
+# Node #
+######################
+node_modules
+
+# Sublime #
+######################
 *.sublime*
+
 # Logs and databases #
 ######################
 *.log
