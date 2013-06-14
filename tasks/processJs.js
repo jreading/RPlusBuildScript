@@ -11,8 +11,6 @@ module.exports = function(grunt) {
 	// Dependencies
 	var fs = require('fs');
 	var rjs = require('requirejs');
-	var jsp = require('uglify-js').parser;
-	var pro = require('uglify-js').uglify;
 
 
 	// Global
@@ -40,15 +38,15 @@ module.exports = function(grunt) {
 				fs.mkdirSync(build + js + libs);
 			}
 
-			blnOptimize = "uglify" ;
+
 			// R.js config
 			var Rjsconfig = {
 				baseUrl: src + js + modules,
 				wrap: true,
-				optimize: blnOptimize,
+				optimize: "none",
 				skipModuleInsertion: true,
 				uglify: {
-					beautify: options.beautify
+					beautify: false
 				},
 				onBuildWrite: function (id, path, contents) {
 					if ((/define\(.*?\{/).test(contents)) {
@@ -77,7 +75,7 @@ module.exports = function(grunt) {
 						grunt.log.errorlns("processJs - Module : " + jsFile + err);
 					}
 
-					file = applyCompression(fs.readFileSync(src + jsFile, "utf-8"));
+					file = fs.readFileSync(src + jsFile, "utf-8");
 					files++;
 					fs.writeFileSync(build + jsFile, file, "utf-8");
 					grunt.log.writelns("File " + jsFile + " created.");
@@ -88,15 +86,15 @@ module.exports = function(grunt) {
 			try {
 				for (i = 0; i < config.core.min.include.length; i++) {
 					file = fs.readFileSync(src + js + config.core.min.include[i], "utf-8") + '\n\n';
-					file = config.core.min.include[i].indexOf('.min') > -1 ? file : applyCompression(file) + ';';
+					file = config.core.min.include[i].indexOf('.min') > -1 ? file : file + ';';
 					minbundle += file;
 				}
 				for (i = 0; i < config.core.thin.include.length; i++) {
 					file = fs.readFileSync(src + js + config.core.thin.include[i], "utf-8") + '\n\n';
-					file = config.core.thin.include[i].indexOf('.min') > -1 ? file : applyCompression(file) + ';';
+					file = config.core.thin.include[i].indexOf('.min') > -1 ? file : file + ';';
 					thinbundle += file;
 				}
-				core = applyCompression(fs.readFileSync(src + js + config.core.name, "utf-8"));
+				core = fs.readFileSync(src + js + config.core.name, "utf-8");
 			} catch(err){
 				grunt.log.errorlns("processJs - Core : " + err);
 			}
@@ -117,7 +115,7 @@ module.exports = function(grunt) {
 				stats = fs.statSync(src + jsFile);
 				if (stats.isFile() && libJs[i].indexOf('.js') > 0) {
 					file = fs.readFileSync(src + jsFile, "utf-8");
-					file = jsFile.indexOf('.min') > -1 ? file : applyCompression(file);
+					file = jsFile.indexOf('.min') > -1 ? file : file;
 					files++;
 					fs.writeFileSync(build + jsFile, file, "utf-8");
 					grunt.log.writelns("File " + jsFile + " - moved.");
@@ -145,7 +143,7 @@ module.exports = function(grunt) {
 							fs.mkdirSync(build + outputDir);
 						}
 						file = fs.readFileSync(src + jsFile, "utf-8");
-						file = jsFile.indexOf('.min') > -1 ? file : applyCompression(file);
+						file = jsFile.indexOf('.min') > -1 ? file : file;
 						files++;
 						fs.writeFileSync(build + jsFile, file, "utf-8");
 						grunt.log.writelns("File " + jsFile + " - moved.");
@@ -157,19 +155,6 @@ module.exports = function(grunt) {
 		finish();
 	};
 
-	var applyCompression = function(file) {
-		if (compress) {
-			var ast = jsp.parse(file);
-			// get a new AST with mangled names
-			ast = pro.ast_mangle(ast);
-			// get an AST with compression optimizations
-			ast = pro.ast_squeeze(ast);
-			// compressed code here
-			return pro.gen_code(ast);
-		} else {
-			return file;
-		}
-	};
 
 	var finish = function() {
 		grunt.log.oklns("\n("+files+") files affected.");
@@ -183,12 +168,6 @@ module.exports = function(grunt) {
 	grunt.task.registerMultiTask('processJs', 'Wrapping the existing JS Node Script in a Grunt Task.', function() {
 		try {
 			config = JSON.parse(fs.readFileSync('config.json', 'ascii'));
-			/*
-				Pass in arguments with defaults
-			*/
-			options = this.options({
-				beautify: false
-			});
 
 			coreJS = config.core.name;
 			src = config.dirs.source;

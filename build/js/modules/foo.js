@@ -1,1 +1,1 @@
-define([],function(){var e=function(){function e(){var e="foo"}};return e})
+define([],function(){var foo=function(){};return foo});

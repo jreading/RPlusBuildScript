@@ -8,6 +8,6 @@ define(['foo'],function(foo) {
 			return foo;
 		}
 	};
-	baz();
+	plugin('baz', baz, '.baz');
 	return baz;
 });

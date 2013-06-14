@@ -84,11 +84,28 @@ module.exports = function (grunt) {
 
 		processJs: {
 			build: {
-                options: {
-                    beautify : false
-                }
+                files: [{
+                    expand: true,
+                    cwd: '<%= cfg.dirs.build %><%= cfg.dirs.js.main %>',
+                    src: '**/*.js',
+                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.js.main %>'
+                }]
             }
-		}
+		},
+
+        uglify: {
+            options: {
+              mangle: false
+            },
+            build: {
+                files: [{
+                    expand: true,
+                    cwd: '<%= cfg.dirs.build %><%= cfg.dirs.js.main %>',
+                    src: '**/*.js',
+                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.js.main %>'
+                }]
+            }
+          }
 	});
 
 	//********************************************************************************
@@ -112,7 +129,8 @@ module.exports = function (grunt) {
         'imagemin',
         'cssmin',
         'encodeImages',
-        'processJs'
+        'processJs',
+        'uglify'
 	]);
 
 	//Set Default Task

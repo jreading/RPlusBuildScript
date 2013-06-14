@@ -14,6 +14,6 @@ define(['foo'],function(foo) {
 			return bar;
 		}
 	};
-
+	plugin('bar', bar, '.bar');
 	return bar;
 });

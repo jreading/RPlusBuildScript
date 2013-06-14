@@ -1,1 +1,1 @@
-define(["foo"],function(e){var t=function(){function t(){var e="foo";return e}function n(){var e="bar";return e}console.log(e)};return t})
+define(["foo"],function(foo){var bar=function(){console.log(foo)};return plugin("bar",bar,".bar"),bar});

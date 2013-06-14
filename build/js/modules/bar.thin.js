@@ -1,1 +1,1 @@
-(function(){var e=function(){function e(){var e="foo"}},t=function(){function t(){var e="foo";return e}function n(){var e="bar";return e}console.log(e)}})()
+!function(){var foo=function(){},bar=function(){console.log(foo)};plugin("bar",bar,".bar")}();
