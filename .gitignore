@@ -6,6 +6,10 @@ node_modules
 ######################
 *.sublime*
 
+# SASS #
+######################
+*.sass-cache
+
 # Logs and databases #
 ######################
 *.log
