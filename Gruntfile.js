@@ -22,17 +22,15 @@ module.exports = function (grunt) {
         },
 
         //********************************************************************************
-		//	SASS Preprocessing to CSS
+		//	Compass Preprocessing to CSS
 		//********************************************************************************
-		sass: {                              // Task
-            dist: {                            // Target
-              files: [{
-                    expand: true,                                               //Dynamic Files
-                    cwd: '<%= cfg.dirs.source %><%= cfg.dirs.css.main %>',      //Working Directory
-                    src: ['**/{desktop,phone,tablet}.scss'],                    //Patterns To Match Recursive Directories
-                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',      //Output Directory
-                    ext: '.min.css'                                             //Extension from less to css
-                }]
+		compass: {                              // Task
+            dist: {  options: {              // Target options
+                sassDir: '<%= cfg.dirs.source %><%= cfg.dirs.css.main %>',
+                specify: '**/{desktop,phone,tablet}.scss',
+                cssDir: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
+                environment: 'production'
+              }
             }
         },
 
@@ -125,7 +123,7 @@ module.exports = function (grunt) {
 	//"grunt build"
 	grunt.registerTask('build', [
         'clean',
-        'sass',
+        'compass',
         'imagemin',
         'cssmin',
         'encodeImages',
