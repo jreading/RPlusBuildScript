@@ -22,19 +22,19 @@ module.exports = function (grunt) {
         },
 
         //********************************************************************************
-		//	LESS Preprocessing to CSS
+		//	SASS Preprocessing to CSS
 		//********************************************************************************
-		less: {
-			build: {
-				files: [{
-					expand: true,												//Dynamic Files
-					cwd: '<%= cfg.dirs.source %><%= cfg.dirs.css.main %>',		//Working Directory
-					src: ['**/{desktop,phone,tablet}.less'],					//Patterns To Match Recursive Directories
-					dest: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',		//Output Directory
-					ext: '.min.css'												//Extension from less to css
-				}]
-			}
-		},
+		sass: {                              // Task
+            dist: {                            // Target
+              files: [{
+                    expand: true,                                               //Dynamic Files
+                    cwd: '<%= cfg.dirs.source %><%= cfg.dirs.css.main %>',      //Working Directory
+                    src: ['**/{desktop,phone,tablet}.scss'],                    //Patterns To Match Recursive Directories
+                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',      //Output Directory
+                    ext: '.min.css'                                             //Extension from less to css
+                }]
+            }
+        },
 
         imagemin: {
             build: {
@@ -125,7 +125,7 @@ module.exports = function (grunt) {
 	//"grunt build"
 	grunt.registerTask('build', [
         'clean',
-        'less',
+        'sass',
         'imagemin',
         'cssmin',
         'encodeImages',
