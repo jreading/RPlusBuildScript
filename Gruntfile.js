@@ -54,7 +54,8 @@ module.exports = function (grunt) {
                     expand: true,
                     cwd: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
                     src: '**/*.css',
-                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>'
+                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
+                    ext: '.min.css'
                 }]
             }
         },
