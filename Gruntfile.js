@@ -54,7 +54,8 @@ module.exports = function (grunt) {
                     expand: true,
                     cwd: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
                     src: '**/*.css',
-                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>'
+                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
+                    ext: '.min.css'
                 }]
             }
         },
@@ -74,9 +75,9 @@ module.exports = function (grunt) {
 		//	Watch files and run Grunt tasks
 		//********************************************************************************
 		watch: {
-            less: {
-                files: ['<%= cfg.dirs.source %><%= cfg.dirs.css.main %>**/*.less'],
-                tasks: ['less'] //Compilation task here
+            scss: {
+                files: ['<%= cfg.dirs.source %><%= cfg.dirs.css.main %>**/*.scss'],
+                tasks: ['build'] //Compilation task here
             }
         },
 
@@ -113,8 +114,7 @@ module.exports = function (grunt) {
 	//"grunt rp"
 	grunt.registerTask('rp', function(){
 		grunt.task.run([
-            'clean',
-            'less',
+            'build',
             'watch'
 		]);
     });
