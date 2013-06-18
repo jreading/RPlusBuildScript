@@ -114,7 +114,6 @@ module.exports = function (grunt) {
 	//"grunt rp"
 	grunt.registerTask('rp', function(){
 		grunt.task.run([
-            'clean',
             'build',
             'watch'
 		]);
