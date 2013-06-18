@@ -75,9 +75,9 @@ module.exports = function (grunt) {
 		//	Watch files and run Grunt tasks
 		//********************************************************************************
 		watch: {
-            less: {
-                files: ['<%= cfg.dirs.source %><%= cfg.dirs.css.main %>**/*.less'],
-                tasks: ['less'] //Compilation task here
+            scss: {
+                files: ['<%= cfg.dirs.source %><%= cfg.dirs.css.main %>**/*.scss'],
+                tasks: ['build'] //Compilation task here
             }
         },
 
@@ -115,7 +115,7 @@ module.exports = function (grunt) {
 	grunt.registerTask('rp', function(){
 		grunt.task.run([
             'clean',
-            'less',
+            'build',
             'watch'
 		]);
     });
