@@ -1,5 +1,6 @@
-'use strict';
+
 module.exports = function (grunt) {
+    'use strict';
 
 	//	Load in build dependenies - using matchdep module to load in one line.
     require('matchdep').filter('grunt-*').forEach(grunt.loadNpmTasks);
@@ -25,12 +26,13 @@ module.exports = function (grunt) {
 		//	Compass Preprocessing to CSS
 		//********************************************************************************
 		compass: {                              // Task
-            dist: {  options: {              // Target options
-                sassDir: '<%= cfg.dirs.source %><%= cfg.dirs.css.main %>',
-                specify: '**/{desktop,phone,tablet}.scss',
-                cssDir: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
-                environment: 'production'
-              }
+            dist: {
+                options: {              // Target options
+                    sassDir: '<%= cfg.dirs.source %><%= cfg.dirs.css.main %>',
+                    specify: '**/{desktop,phone,tablet}.scss',
+                    cssDir: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
+                    environment: 'production'
+                  }
             }
         },
 
@@ -74,9 +76,9 @@ module.exports = function (grunt) {
 		//	Watch files and run Grunt tasks
 		//********************************************************************************
 		watch: {
-            less: {
-                files: ['<%= cfg.dirs.source %><%= cfg.dirs.css.main %>**/*.less'],
-                tasks: ['less'] //Compilation task here
+            compass: {
+                files: ['<%= cfg.dirs.source %><%= cfg.dirs.css.main %>**/*.scss'],
+                tasks: ['compass'] //Compilation task here
             }
         },
 
@@ -114,7 +116,7 @@ module.exports = function (grunt) {
 	grunt.registerTask('rp', function(){
 		grunt.task.run([
             'clean',
-            'less',
+            'compass',
             'watch'
 		]);
     });
