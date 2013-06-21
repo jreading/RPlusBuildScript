@@ -15,6 +15,7 @@
 			}
 		},
 	"dirs": {
+		"tmp" : "_tmp/",
 		"source" : "_src/",
 		"build": "build/",
 		"js": {

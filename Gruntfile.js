@@ -19,7 +19,8 @@ module.exports = function (grunt) {
 		//	Cleans out temporary and build directories
 		//********************************************************************************
 		clean: {
-            build: ['<%= cfg.dirs.build %>']
+            build: ['<%= cfg.dirs.build %>'],
+            tmp: ['<%= cfg.dirs.tmp %>']
         },
 
         //********************************************************************************
@@ -30,8 +31,7 @@ module.exports = function (grunt) {
                 options: {              // Target options
                     sassDir: '<%= cfg.dirs.source %><%= cfg.dirs.css.main %>',
                     specify: '**/{desktop,phone,tablet}.scss',
-                    cssDir: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
-                    environment: 'production'
+                    cssDir: '<%= cfg.dirs.tmp %><%= cfg.dirs.css.main %>'
                   }
             }
         },
@@ -54,7 +54,7 @@ module.exports = function (grunt) {
 				},
                 files: [{
                     expand: true,
-                    cwd: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
+                    cwd: '<%= cfg.dirs.tmp %><%= cfg.dirs.css.main %>',
                     src: '**/*.css',
                     dest: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
                     ext: '.min.css'
@@ -127,6 +127,7 @@ module.exports = function (grunt) {
             'imagemin',
             'cssmin',
             'encodeImages',
+            'clean:tmp',
             'watch:css'
         ]);
     });
@@ -135,6 +136,7 @@ module.exports = function (grunt) {
         grunt.task.run([
             'processJs',
             'uglify',
+            'clean:tmp',
             'watch:js'
         ]);
     });
@@ -144,6 +146,7 @@ module.exports = function (grunt) {
         'imagemin',
         'build-css',
         'build-js',
+        'clean:tmp',
         'watch:all'
 	]);
 
