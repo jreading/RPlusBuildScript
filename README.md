@@ -1,7 +1,19 @@
 RPlusBuildScript
 ================
 
-A modular js and Compass grunt build script for ResponsivePlus sites.
+A modular js and Compass grunt build script for ResponsivePlus sites. 
+
+There are two profiles created from source files: Mobile (high latency/low cache) and Non-Mobile (low latency/high cache)
+
+Mobile:
+
+*   Modules and their dependencies are bundled and stripped of AMD as *.thin files for mobile. 
+*   Css files contain base64 encoded images.
+*   Core file is concatenated from config.core.thin
+
+Non-Mobile:
+
+*   Core file is concatenated from config.core.min including require.js for async loading in the client.
 
 
 clone repo and run:
@@ -9,7 +21,15 @@ clone repo and run:
 ```
 grunt build
 ```
-This will currently clean, compile .scss to .css, image minification, css minification, and run the amd processing task
+
+This will currently clean, compile .scss to .css and minify, optimize images, process modules.
+
+
+```
+grunt build-css
+```
+
+This will currently clean, compile .scss to .css and minify, optimize images, and run the amd processing task.
 
 
 Example Dir Structure:
