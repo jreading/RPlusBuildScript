@@ -56,7 +56,8 @@ module.exports = function (grunt) {
                     expand: true,
                     cwd: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
                     src: '**/*.css',
-                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>'
+                    dest: '<%= cfg.dirs.build %><%= cfg.dirs.css.main %>',
+                    ext: '.min.css'
                 }]
             }
         },
@@ -76,9 +77,17 @@ module.exports = function (grunt) {
 		//	Watch files and run Grunt tasks
 		//********************************************************************************
 		watch: {
-            compass: {
-                files: ['<%= cfg.dirs.source %><%= cfg.dirs.css.main %>**/*.scss'],
-                tasks: ['compass'] //Compilation task here
+            all: {
+                files: ['<%= cfg.dirs.source %>**'],
+                tasks: ['build'] //Compilation task here
+            },
+            css: {
+                files: ['<%= cfg.dirs.source %><%= cfg.dirs.css.main %>**'],
+                tasks: ['build-css'] //Compilation task here
+            },
+            js: {
+                files: ['<%= cfg.dirs.source %><%= cfg.dirs.js.main %>**'],
+                tasks: ['build-js'] //Compilation task here
             }
         },
 
@@ -112,25 +121,30 @@ module.exports = function (grunt) {
 	//	Grunt Build Options - Executed from command line as "grunt taskname"
 	//********************************************************************************
 	
-	//"grunt rp"
-	grunt.registerTask('rp', function(){
-		grunt.task.run([
-            'clean',
+	grunt.registerTask('build-css', function(){
+        grunt.task.run([
             'compass',
-            'watch'
-		]);
+            'imagemin',
+            'cssmin',
+            'encodeImages',
+            'watch:css'
+        ]);
     });
 
-	//Compile for Primetime
-	//"grunt build"
+    grunt.registerTask('build-js', function(){
+        grunt.task.run([
+            'processJs',
+            'uglify',
+            'watch:js'
+        ]);
+    });
+
 	grunt.registerTask('build', [
         'clean',
-        'compass',
         'imagemin',
-        'cssmin',
-        'encodeImages',
-        'processJs',
-        'uglify'
+        'build-css',
+        'build-js',
+        'watch:all'
 	]);
 
 	//Set Default Task
