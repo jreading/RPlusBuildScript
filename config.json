@@ -1,9 +1,8 @@
 {
 	"name": "RPlusBuildScript - Grunt",
-	"description": "Grunt Build Script for Responsive + Websites",
+	"description": "Grunt Build Script for ResponsivePlus and RESS Websites",
 	"version": "0.1.0",
-	"author": "iCrossing",
-	"company": "iCrossing",
+	"author": "John Reading",
 	"lastModified": "5/17/13",
 	"core" : {
 		"name": "core.js",
@@ -26,11 +25,6 @@
 		"libs": "libs/",
 		"css": {
 			"main": "css/"
-		},
-		"sections": ""
-	},
-	"options": {
-		"watch": false,
-		"nocompress": false
+		}
 	}
 }
