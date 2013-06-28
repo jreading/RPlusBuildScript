@@ -42,14 +42,29 @@ Example Dir Structure:
               | - modules
                    my-module.js
          | - css
-              base.scss
+              _base.scss
               phone.scss
               tablet.scss
               desktop.scss
               | - section
-                   base.scss
+                   _base.scss
                    phone.scss
                    tablet.scss
                    desktop.scss
     | - build
+         | - js
+              core.min.js
+              core.thin.js
+              | - modules
+                   my-module.js
+                   my-module.thin.js
+         | - css
+              phone.min.css
+              tablet.min.css
+              desktop.min.css
+              | - section
+                   phone.min.css
+                   tablet.min.css
+                   desktop.min.css
+    
 ```
