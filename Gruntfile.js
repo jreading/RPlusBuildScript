@@ -121,34 +121,25 @@ module.exports = function (grunt) {
 	//	Grunt Build Options - Executed from command line as "grunt taskname"
 	//********************************************************************************
 	
-	grunt.registerTask('build-css', function(){
-        grunt.task.run([
-            'compass',
-            'imagemin',
-            'cssmin',
-            'encodeImages',
-            'clean:tmp',
-            'watch:css'
-        ]);
-    });
+	grunt.registerTask('build-css', [
+        'compass',
+        'imagemin',
+        'cssmin',
+        'encodeImages',
+        'clean:tmp'
+    ]);
 
-    grunt.registerTask('build-js', function(){
-        grunt.task.run([
-            'processJs',
-            'uglify',
-            'clean:tmp',
-            'watch:js'
-        ]);
-    });
+    grunt.registerTask('build-js', [
+        'processJs',
+        'uglify'
+    ]);
 
 	grunt.registerTask('build', [
         'clean',
         'imagemin',
         'build-css',
-        'build-js',
-        'clean:tmp',
-        'watch:all'
-	]);
+        'build-js'
+    ]);
 
 	//Set Default Task
 	grunt.registerTask('default', ['build']);

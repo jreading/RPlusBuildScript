@@ -1,3 +1,3 @@
 var core = {
-	//comment
+	//comment 
 };
