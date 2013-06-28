@@ -14,7 +14,7 @@ module.exports = function(grunt) {
 
 
 	// Global
-	var moduleJs, mainJs, sections, config, coreJS, src, build, libs, libJs, sectionsJsDir, js, modules, compress, sectionJs, stat, path, options;
+	var moduleJs, mainJs, sections, config, coreJS, src, build, libs, libJs, sectionsJsDir, js, modules, sectionJs, stat, path, options;
 	var files = 0;
 
 	// JS minification AMD bundling
@@ -175,7 +175,6 @@ module.exports = function(grunt) {
 			libs = config.dirs.libs;
 			js = config.dirs.js.main;
 			modules = config.dirs.js.modules;
-			compress = !config.options.nocompress;
 			sections = config.dirs.sections;
 
 			moduleJs = fs.readdirSync(src + js + modules);

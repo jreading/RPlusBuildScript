@@ -25,6 +25,7 @@
 		"libs": "libs/",
 		"css": {
 			"main": "css/"
-		}
+		},
+		"sections": ""
 	}
 }
