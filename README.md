@@ -1,7 +1,7 @@
 RPlusBuildScript
 ================
 
-A modular js and Compass grunt build script for ResponsivePlus sites. 
+A modular js and Compass grunt build script for ResponsivePlus and RESS sites. 
 
 There are two profiles created from source files: Mobile (high latency/low cache) and Non-Mobile (low latency/high cache)
 
